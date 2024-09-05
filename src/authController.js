@@ -120,6 +120,49 @@ exports.getInteresses = async (req, res) => {
     }
 };
 
+// Inserir Interesses
+exports.addInteresse = async (req, res) => {
+    const { nome } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('interesses')
+            .insert([{ nome }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao adicionar interesse' });
+        }
+
+        res.status(201).json({ message: 'Interesse adicionado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Editar Interesses
+exports.updateInteresse = async (req, res) => {
+    const { id } = req.params;
+    const { nome } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('interesses')
+            .update({ nome })
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao atualizar o interesse' });
+        }
+
+        res.status(200).json({ message: 'Interesse atualizado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+
 // Buscar os Cursos
 exports.getCursos = async (req, res) => {
     try {
@@ -132,6 +175,48 @@ exports.getCursos = async (req, res) => {
         }
 
         res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Inserir Cursos
+exports.addCurso = async (req, res) => {
+    const { nome } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('cursos')
+            .insert([{ nome }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao adicionar curso' });
+        }
+
+        res.status(201).json({ message: 'Curso adicionado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Editar Cursos
+exports.updateCurso = async (req, res) => {
+    const { id } = req.params;
+    const { nome } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('cursos')
+            .update({ nome })
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao atualizar o curso' });
+        }
+
+        res.status(200).json({ message: 'Curso atualizado com sucesso' });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erro no servidor' });
