@@ -71,3 +71,69 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor' });
     }
 };
+
+// Atualizar o Perfil do Usuário
+exports.updateProfile = async (req, res) => {
+    const { id } = req.user;
+    const { nome_completo, descricao, curso, idade, semestre, interesses } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('users')
+            .update({ 
+                nome: nome_completo, 
+                descricao, 
+                curso, 
+                idade, 
+                semestre, 
+                interesses,
+                primeiro_login: false
+            })
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao atualizar o perfil' });
+        }
+
+        res.status(200).json({ message: 'Perfil atualizado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Buscar os Interesses
+exports.getInteresses = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('interesses')
+            .select('*');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar interesses' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Buscar os Cursos
+exports.getCursos = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('cursos')
+            .select('*');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar cursos' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
