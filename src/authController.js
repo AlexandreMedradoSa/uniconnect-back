@@ -162,6 +162,26 @@ exports.updateInteresse = async (req, res) => {
     }
 };
 
+// Excluir Interesses
+exports.deleteInteresse = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('interesses')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao excluir o interesse' });
+        }
+
+        res.status(200).json({ message: 'Interesse excluído com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
 
 // Buscar os Cursos
 exports.getCursos = async (req, res) => {
@@ -217,6 +237,27 @@ exports.updateCurso = async (req, res) => {
         }
 
         res.status(200).json({ message: 'Curso atualizado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Deletar Curso
+exports.deleteCurso = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('cursos')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao excluir o curso' });
+        }
+
+        res.status(200).json({ message: 'Curso excluído com sucesso' });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erro no servidor' });
