@@ -102,6 +102,28 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// Visualizar Perfil do Usuário
+exports.getUserProfile = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('nome, descricao, curso, idade, semestre, interesses')
+            .eq('id', id)
+            .single();
+
+        if (error || !data) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
 // Buscar os Interesses
 exports.getInteresses = async (req, res) => {
     try {
@@ -120,7 +142,7 @@ exports.getInteresses = async (req, res) => {
     }
 };
 
-// Inserir Interesses
+// Inserir Interesse
 exports.addInteresse = async (req, res) => {
     const { nome } = req.body;
 
@@ -140,7 +162,7 @@ exports.addInteresse = async (req, res) => {
     }
 };
 
-// Editar Interesses
+// Editar Interesse
 exports.updateInteresse = async (req, res) => {
     const { id } = req.params;
     const { nome } = req.body;
@@ -162,7 +184,7 @@ exports.updateInteresse = async (req, res) => {
     }
 };
 
-// Excluir Interesses
+// Excluir Interesse
 exports.deleteInteresse = async (req, res) => {
     const { id } = req.params;
 
@@ -201,7 +223,7 @@ exports.getCursos = async (req, res) => {
     }
 };
 
-// Inserir Cursos
+// Inserir Curso
 exports.addCurso = async (req, res) => {
     const { nome } = req.body;
 
@@ -221,7 +243,7 @@ exports.addCurso = async (req, res) => {
     }
 };
 
-// Editar Cursos
+// Editar Curso
 exports.updateCurso = async (req, res) => {
     const { id } = req.params;
     const { nome } = req.body;
@@ -258,6 +280,133 @@ exports.deleteCurso = async (req, res) => {
         }
 
         res.status(200).json({ message: 'Curso excluído com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Listar Grupos de Estudo
+exports.getGruposEstudo = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('grupos_estudo')
+            .select('*');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar grupos de estudo' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Criar Grupo de Estudo
+exports.createGrupoEstudo = async (req, res) => {
+    const { nome, descricao, curso, semestre, interesses } = req.body;
+    const { id: criador_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('grupos_estudo')
+            .insert([
+                { nome, descricao, curso, semestre, interesses, criador_id }
+            ]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao criar grupo de estudo' });
+        }
+
+        res.status(201).json({ message: 'Grupo de estudo criado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Deletar Grupo de Estudo
+exports.deleteGrupoEstudo = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('grupos_estudo')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao excluir o grupo de estudo' });
+        }
+
+        res.status(200).json({ message: 'Grupo de estudo excluído com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Atualizar Grupo de Estudo
+exports.updateGrupoEstudo = async (req, res) => {
+    const { id } = req.params;
+    const { nome, descricao, curso, semestre, interesses } = req.body;
+
+    try {
+        const { error } = await supabase
+            .from('grupos_estudo')
+            .update({ nome, descricao, curso, semestre, interesses })
+            .eq('id', id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao atualizar o grupo de estudo' });
+        }
+
+        res.status(200).json({ message: 'Grupo de estudo atualizado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Listar Usuários em um Grupo de Estudo
+exports.getUsuariosGrupoEstudo = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { data, error } = await supabase
+            .from('grupo_usuarios')
+            .select('usuario_id, users.nome')
+            .eq('grupo_id', id)
+            .join('users', 'grupo_usuarios.usuario_id', 'users.id');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar usuários do grupo de estudo' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Adicionar Usuário a um Grupo de Estudo
+exports.addUsuarioGrupoEstudo = async (req, res) => {
+    const { id: grupo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('grupo_usuarios')
+            .insert([{ grupo_id, usuario_id }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao adicionar usuário ao grupo de estudo' });
+        }
+
+        res.status(201).json({ message: 'Usuário adicionado ao grupo de estudo com sucesso' });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erro no servidor' });
