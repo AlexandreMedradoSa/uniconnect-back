@@ -16,6 +16,7 @@ app.post('/api/register', authController.register);
 app.post('/api/login', authController.login);
 
 app.put('/api/profile', verifyToken, authController.updateProfile);
+app.get('/api/users/:id', verifyToken, authController.getUserProfile);
 
 app.get('/api/interesses', verifyToken, authController.getInteresses);
 app.post('/api/interesses', verifyToken, authController.addInteresse);

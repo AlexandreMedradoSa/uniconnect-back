@@ -102,6 +102,28 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+// Visualizar Perfil do Usuário
+exports.getUserProfile = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('nome, descricao, curso, idade, semestre, interesses')
+            .eq('id', id)
+            .single();
+
+        if (error || !data) {
+            return res.status(404).json({ message: 'Usuário não encontrado' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
 // Buscar os Interesses
 exports.getInteresses = async (req, res) => {
     try {
@@ -263,3 +285,4 @@ exports.deleteCurso = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor' });
     }
 };
+
