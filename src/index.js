@@ -35,7 +35,12 @@ app.delete('/api/cursos/:id', verifyToken, authController.deleteCurso);
 // Rotas de Grupos de Estudo
 app.get('/api/grupos', verifyToken, authController.getGruposEstudo);
 app.post('/api/grupos', verifyToken, authController.createGrupoEstudo);
+app.put('/api/grupos/:id', verifyToken, authController.updateGrupoEstudo);
 app.delete('/api/grupos/:id', verifyToken, authController.deleteGrupoEstudo);
+
+// Rotas para Usuários em Grupos de Estudo
+app.get('/api/grupos/:id/usuarios', verifyToken, authController.getUsuariosGrupoEstudo);
+app.post('/api/grupos/:id/usuarios', verifyToken, authController.addUsuarioGrupoEstudo);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
