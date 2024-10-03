@@ -51,6 +51,12 @@ app.post('/api/users/:id/conexoes', verifyToken, authController.addConexao);
 app.put('/api/users/:id/conexoes/aceitar', verifyToken, authController.aceitarConexao);
 app.put('/api/users/:id/conexoes/recusar', verifyToken, authController.recusarConexao);
 
+// Rotas de Eventos Acadêmicos
+app.post('/api/eventos', verifyToken, authController.createEvento);
+app.get('/api/eventos', verifyToken, authController.getEventos);
+app.post('/api/eventos/:id/participar', verifyToken, authController.participarEvento);
+app.delete('/api/eventos/:id/participar', verifyToken, authController.cancelarParticipacao);
+
 
 
 app.listen(PORT, () => {

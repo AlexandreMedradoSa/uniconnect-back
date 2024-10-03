@@ -594,3 +594,86 @@ exports.recusarConexao = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor' });
     }
 };
+
+// Criar Evento Academico
+exports.createEvento = async (req, res) => {
+    const { nome, descricao, data, curso } = req.body;
+    const { id: criador_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('eventos')
+            .insert([{ nome, descricao, data, curso, criador_id }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao criar evento' });
+        }
+
+        res.status(201).json({ message: 'Evento criado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Listar Eventos Acadêmicos
+exports.getEventos = async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('eventos')
+            .select('*');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar eventos' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Participar de Evento Acadêmico
+exports.participarEvento = async (req, res) => {
+    const { id: evento_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('evento_participantes')
+            .insert([{ evento_id, usuario_id }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao participar do evento' });
+        }
+
+        res.status(201).json({ message: 'Participação confirmada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Cancelar Participação em Evento
+exports.cancelarParticipacao = async (req, res) => {
+    const { id: evento_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('evento_participantes')
+            .delete()
+            .eq('evento_id', evento_id)
+            .eq('usuario_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao cancelar participação' });
+        }
+
+        res.status(200).json({ message: 'Participação cancelada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
