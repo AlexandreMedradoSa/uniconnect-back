@@ -468,3 +468,129 @@ exports.searchGruposEstudo = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor' });
     }
 };
+
+// Atualizar Senha de um Usuário
+exports.updateSenha = async (req, res) => {
+    const { id } = req.user; // usuario logado
+    const { senha_antiga, senha_nova } = req.body;
+
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('password_hash')
+            .eq('id', id)
+            .single();
+
+        const validPassword = await bcrypt.compare(senha_antiga, user.password_hash);
+
+        if (!validPassword) {
+            return res.status(400).json({ message: 'Senha antiga inválida' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(senha_nova, salt);
+
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ password_hash: hashedPassword })
+            .eq('id', id);
+
+        if (updateError) {
+            return res.status(500).json({ message: 'Erro ao atualizar a senha' });
+        }
+
+        res.status(200).json({ message: 'Senha atualizada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Listar Conexões (Amigos) de um Usuário
+exports.getConexoes = async (req, res) => {
+    const { id } = req.user;
+
+    try {
+        const { data, error } = await supabase
+            .from('conexoes')
+            .select('amigo_id, users.nome')
+            .eq('usuario_id', id)
+            .eq('status', 'aceito')
+            .join('users', 'conexoes.amigo_id', 'users.id');
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar conexões' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Adicionar Conexão entre Usuários
+exports.addConexao = async (req, res) => {
+    const { id: amigo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('conexoes')
+            .insert([{ usuario_id, amigo_id, status: 'pendente' }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao enviar solicitação de conexão' });
+        }
+
+        res.status(201).json({ message: 'Solicitação de conexão enviada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Aceitar ou Recusar Conexões
+exports.aceitarConexao = async (req, res) => {
+    const { id: amigo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('conexoes')
+            .update({ status: 'aceito' })
+            .eq('usuario_id', amigo_id)
+            .eq('amigo_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao aceitar solicitação de conexão' });
+        }
+
+        res.status(200).json({ message: 'Conexão aceita com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+exports.recusarConexao = async (req, res) => {
+    const { id: amigo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('conexoes')
+            .update({ status: 'recusado' })
+            .eq('usuario_id', amigo_id)
+            .eq('amigo_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao recusar solicitação de conexão' });
+        }
+
+        res.status(200).json({ message: 'Conexão recusada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};

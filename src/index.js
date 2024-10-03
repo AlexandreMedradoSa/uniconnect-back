@@ -18,6 +18,7 @@ app.post('/api/login', authController.login);
 
 // Rotas de Perfil do Usuário
 app.put('/api/profile', verifyToken, authController.updateProfile);
+app.put('/api/users/:id/senha', verifyToken, authController.updateSenha);
 app.get('/api/users/:id', verifyToken, authController.getUserProfile);
 
 // Rotas de Interesses
@@ -43,6 +44,14 @@ app.get('/api/grupos/search', verifyToken, authController.searchGruposEstudo);
 app.get('/api/grupos/:id/usuarios', verifyToken, authController.getUsuariosGrupoEstudo);
 app.post('/api/grupos/:id/usuarios', verifyToken, authController.addUsuarioGrupoEstudo);
 app.delete('/api/grupos/:id/usuarios', verifyToken, authController.removeUsuarioGrupoEstudo);
+
+// Rotas de Conexões entre Usuários
+app.get('/api/users/:id/conexoes', verifyToken, authController.getConexoes);
+app.post('/api/users/:id/conexoes', verifyToken, authController.addConexao);
+app.put('/api/users/:id/conexoes/aceitar', verifyToken, authController.aceitarConexao);
+app.put('/api/users/:id/conexoes/recusar', verifyToken, authController.recusarConexao);
+
+
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
