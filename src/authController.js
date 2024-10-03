@@ -412,3 +412,59 @@ exports.addUsuarioGrupoEstudo = async (req, res) => {
         res.status(500).json({ message: 'Erro no servidor' });
     }
 };
+
+// Remover Usuário de um Grupo de Estudo
+exports.removeUsuarioGrupoEstudo = async (req, res) => {
+    const { id: grupo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('grupo_usuarios')
+            .delete()
+            .eq('grupo_id', grupo_id)
+            .eq('usuario_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao remover o usuário do grupo de estudo' });
+        }
+
+        res.status(200).json({ message: 'Usuário removido do grupo de estudo com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Pesquisar Grupos de Estudo
+exports.searchGruposEstudo = async (req, res) => {
+    const { nome, curso, semestre, interesses } = req.query;
+
+    try {
+        let query = supabase.from('grupos_estudo').select('*');
+
+        if (nome) {
+            query = query.ilike('nome', `%${nome}%`);
+        }
+        if (curso) {
+            query = query.eq('curso', curso);
+        }
+        if (semestre) {
+            query = query.eq('semestre', semestre);
+        }
+        if (interesses) {
+            query = query.contains('interesses', [interesses]);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar grupos de estudo' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
