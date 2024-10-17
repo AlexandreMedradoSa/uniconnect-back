@@ -47,11 +47,14 @@ app.post('/api/grupos', verifyToken, authController.createGrupoEstudo);
 app.put('/api/grupos/:id', verifyToken, authController.updateGrupoEstudo);
 app.delete('/api/grupos/:id', verifyToken, authController.deleteGrupoEstudo);
 app.get('/api/grupos/search', verifyToken, authController.searchGruposEstudo);
+app.put('/api/grupos/:id/arquivar', verifyToken, authController.arquivarGrupo);
+app.post('/api/grupos/:grupo_id/avaliacao', verifyToken, authController.enviarAvaliacaoGrupo);
 
 // Rotas para Usuários em Grupos de Estudo
 app.get('/api/grupos/:id/usuarios', verifyToken, authController.getUsuariosGrupoEstudo);
 app.post('/api/grupos/:id/usuarios', verifyToken, authController.addUsuarioGrupoEstudo);
 app.delete('/api/grupos/:id/usuarios', verifyToken, authController.removeUsuarioGrupoEstudo);
+app.put('/api/grupos/:grupo_id/usuarios/:usuario_id/administrador', verifyToken, authController.definirAdministrador);
 
 // Rotas de Conexões entre Usuários
 app.get('/api/users/:id/conexoes', verifyToken, authController.getConexoes);
