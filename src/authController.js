@@ -72,6 +72,11 @@ exports.login = async (req, res) => {
     }
 };
 
+// Logout
+exports.logout = (req, res) => {
+    res.status(200).json({ message: 'Logout realizado com sucesso', token: null });
+};
+
 // Atualizar o Perfil do Usuário
 exports.updateProfile = async (req, res) => {
     const { id } = req.user;
@@ -675,5 +680,15 @@ exports.cancelarParticipacao = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Função para Registrar Auditoria
+const registrarAuditoria = async (grupo_id, usuario_id, acao) => {
+    const { error } = await supabase
+        .from('auditoria_grupos')
+        .insert([{ grupo_id, usuario_id, acao }]);
+    if (error) {
+        console.log('Erro ao registrar auditoria:', error);
     }
 };
