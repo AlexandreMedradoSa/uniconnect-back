@@ -64,6 +64,7 @@ app.post('/api/eventos', verifyToken, authController.createEvento);
 app.get('/api/eventos', verifyToken, authController.getEventos);
 app.post('/api/eventos/:id/participar', verifyToken, authController.participarEvento);
 app.delete('/api/eventos/:id/participar', verifyToken, authController.cancelarParticipacao);
+app.get('/api/eventos/historico', verifyToken, authController.getHistoricoParticipacao);
 
 
 
