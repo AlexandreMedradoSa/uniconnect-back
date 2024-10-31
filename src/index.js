@@ -3,6 +3,13 @@ const dotenv = require('dotenv');
 const authController = require('./authController');
 const { verifyToken } = require('./authMiddleware');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 5,
+    message: 'Muitas tentativas de login, tente novamente em um minuto.',
+});
 
 dotenv.config();
 
@@ -14,7 +21,8 @@ app.use(express.json());
 
 // Rotas de Autenticação
 app.post('/api/register', authController.register);
-app.post('/api/login', authController.login);
+app.post('/api/login', limiter, authController.login);
+app.post('/api/logout', verifyToken, authController.logout);
 
 // Rotas de Perfil do Usuário
 app.put('/api/profile', verifyToken, authController.updateProfile);
