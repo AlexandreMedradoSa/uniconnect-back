@@ -474,6 +474,71 @@ exports.searchGruposEstudo = async (req, res) => {
     }
 };
 
+// Definir Administradores Grupos de Estudo
+exports.definirAdministrador = async (req, res) => {
+    const { grupo_id, usuario_id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('grupo_usuarios')
+            .update({ funcao: 'administrador' })
+            .eq('grupo_id', grupo_id)
+            .eq('usuario_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao definir administrador' });
+        }
+
+        res.status(200).json({ message: 'Administrador definido com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Arquivar Grupo de Estudo
+exports.arquivarGrupo = async (req, res) => {
+    const { id: grupo_id } = req.params;
+
+    try {
+        const { error } = await supabase
+            .from('grupos_estudo')
+            .update({ status: 'inativo' })
+            .eq('id', grupo_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao arquivar grupo' });
+        }
+
+        res.status(200).json({ message: 'Grupo arquivado com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Avaliar Grupo de Estudo
+exports.enviarAvaliacaoGrupo = async (req, res) => {
+    const { grupo_id } = req.params;
+    const { avaliacao, feedback } = req.body;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('avaliacoes_grupos')
+            .insert([{ grupo_id, usuario_id, avaliacao, feedback }]);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao enviar avaliação' });
+        }
+
+        res.status(201).json({ message: 'Avaliação enviada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
 // Atualizar Senha de um Usuário
 exports.updateSenha = async (req, res) => {
     const { id } = req.user; // usuario logado
