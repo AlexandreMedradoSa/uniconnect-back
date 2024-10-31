@@ -600,6 +600,50 @@ exports.recusarConexao = async (req, res) => {
     }
 };
 
+// Bloquear conexão
+exports.bloquearConexao = async (req, res) => {
+    const { id: amigo_id } = req.params;
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { error } = await supabase
+            .from('conexoes')
+            .update({ status: 'bloqueado' })
+            .eq('usuario_id', usuario_id)
+            .eq('amigo_id', amigo_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao bloquear conexão' });
+        }
+
+        res.status(200).json({ message: 'Conexão bloqueada com sucesso' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
+// Histórico de Conexões Aceitas e Recusadas
+exports.getHistoricoConexoes = async (req, res) => {
+    const { id: usuario_id } = req.user;
+
+    try {
+        const { data, error } = await supabase
+            .from('conexoes')
+            .select('amigo_id, status, data')
+            .eq('usuario_id', usuario_id);
+
+        if (error) {
+            return res.status(500).json({ message: 'Erro ao buscar histórico de conexões' });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erro no servidor' });
+    }
+};
+
 // Criar Evento Academico
 exports.createEvento = async (req, res) => {
     const { nome, descricao, data, curso } = req.body;

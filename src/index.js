@@ -58,6 +58,8 @@ app.get('/api/users/:id/conexoes', verifyToken, authController.getConexoes);
 app.post('/api/users/:id/conexoes', verifyToken, authController.addConexao);
 app.put('/api/users/:id/conexoes/aceitar', verifyToken, authController.aceitarConexao);
 app.put('/api/users/:id/conexoes/recusar', verifyToken, authController.recusarConexao);
+app.put('/api/users/:id/conexoes/bloquear', verifyToken, authController.bloquearConexao);
+app.get('/api/users/:id/conexoes/historico', verifyToken, authController.getHistoricoConexoes);
 
 // Rotas de Eventos Acadêmicos
 app.post('/api/eventos', verifyToken, authController.createEvento);
