@@ -1,14 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const authController = require('./authController');
-const { verifyToken } = require('./authMiddleware');
+const { verifyToken, optionalAuth } = require('./authMiddleware');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 5,
-    message: 'Muitas tentativas de login, tente novamente em um minuto.',
+  windowMs: 60 * 1000,
+  max: 5,
+  message: 'Muitas tentativas de login, tente novamente em um minuto.',
 });
 
 dotenv.config();
@@ -27,6 +27,7 @@ app.post('/api/logout', verifyToken, authController.logout);
 // Rotas de Perfil do Usuário
 app.put('/api/profile', verifyToken, authController.updateProfile);
 app.put('/api/users/:id/senha', verifyToken, authController.updateSenha);
+app.get('/api/users/search', verifyToken, authController.searchUsers);
 app.get('/api/users/:id', verifyToken, authController.getUserProfile);
 
 // Rotas de Interesses
@@ -42,37 +43,83 @@ app.put('/api/cursos/:id', verifyToken, authController.updateCurso);
 app.delete('/api/cursos/:id', verifyToken, authController.deleteCurso);
 
 // Rotas de Grupos de Estudo
-app.get('/api/grupos', verifyToken, authController.getGruposEstudo);
+app.get('/api/grupos', optionalAuth, authController.getGruposEstudo);
 app.post('/api/grupos', verifyToken, authController.createGrupoEstudo);
 app.put('/api/grupos/:id', verifyToken, authController.updateGrupoEstudo);
 app.delete('/api/grupos/:id', verifyToken, authController.deleteGrupoEstudo);
 app.get('/api/grupos/search', verifyToken, authController.searchGruposEstudo);
 app.put('/api/grupos/:id/arquivar', verifyToken, authController.arquivarGrupo);
-app.post('/api/grupos/:grupo_id/avaliacao', verifyToken, authController.enviarAvaliacaoGrupo);
+app.post(
+  '/api/grupos/:grupo_id/avaliacao',
+  verifyToken,
+  authController.enviarAvaliacaoGrupo,
+);
 
 // Rotas para Usuários em Grupos de Estudo
-app.get('/api/grupos/:id/usuarios', verifyToken, authController.getUsuariosGrupoEstudo);
-app.post('/api/grupos/:id/usuarios', verifyToken, authController.addUsuarioGrupoEstudo);
-app.delete('/api/grupos/:id/usuarios', verifyToken, authController.removeUsuarioGrupoEstudo);
-app.put('/api/grupos/:grupo_id/usuarios/:usuario_id/administrador', verifyToken, authController.definirAdministrador);
+app.get(
+  '/api/grupos/:id/usuarios',
+  verifyToken,
+  authController.getUsuariosGrupoEstudo,
+);
+app.post(
+  '/api/grupos/:id/usuarios',
+  verifyToken,
+  authController.addUsuarioGrupoEstudo,
+);
+app.delete(
+  '/api/grupos/:id/usuarios',
+  verifyToken,
+  authController.removeUsuarioGrupoEstudo,
+);
+app.put(
+  '/api/grupos/:grupo_id/usuarios/:usuario_id/administrador',
+  verifyToken,
+  authController.definirAdministrador,
+);
 
 // Rotas de Conexões entre Usuários
 app.get('/api/users/:id/conexoes', verifyToken, authController.getConexoes);
 app.post('/api/users/:id/conexoes', verifyToken, authController.addConexao);
-app.put('/api/users/:id/conexoes/aceitar', verifyToken, authController.aceitarConexao);
-app.put('/api/users/:id/conexoes/recusar', verifyToken, authController.recusarConexao);
-app.put('/api/users/:id/conexoes/bloquear', verifyToken, authController.bloquearConexao);
-app.get('/api/users/:id/conexoes/historico', verifyToken, authController.getHistoricoConexoes);
+app.put(
+  '/api/users/:id/conexoes/aceitar',
+  verifyToken,
+  authController.aceitarConexao,
+);
+app.put(
+  '/api/users/:id/conexoes/recusar',
+  verifyToken,
+  authController.recusarConexao,
+);
+app.put(
+  '/api/users/:id/conexoes/bloquear',
+  verifyToken,
+  authController.bloquearConexao,
+);
+app.get(
+  '/api/users/:id/conexoes/historico',
+  verifyToken,
+  authController.getHistoricoConexoes,
+);
 
 // Rotas de Eventos Acadêmicos
 app.post('/api/eventos', verifyToken, authController.createEvento);
-app.get('/api/eventos', verifyToken, authController.getEventos);
-app.post('/api/eventos/:id/participar', verifyToken, authController.participarEvento);
-app.delete('/api/eventos/:id/participar', verifyToken, authController.cancelarParticipacao);
-app.get('/api/eventos/historico', verifyToken, authController.getHistoricoParticipacao);
-
-
+app.get('/api/eventos', optionalAuth, authController.getEventos);
+app.post(
+  '/api/eventos/:id/participar',
+  verifyToken,
+  authController.participarEvento,
+);
+app.delete(
+  '/api/eventos/:id/participar',
+  verifyToken,
+  authController.cancelarParticipacao,
+);
+app.get(
+  '/api/eventos/historico',
+  verifyToken,
+  authController.getHistoricoParticipacao,
+);
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
